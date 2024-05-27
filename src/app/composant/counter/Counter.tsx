@@ -4,7 +4,7 @@
 
 import React, { useState } from "react";
 
-const Counter = () => {
+const Counter: React.FC = () => {
     const [count, setCount] = useState(0);
 
     const increment = () => {
@@ -16,13 +16,13 @@ const Counter = () => {
 
     return (
         <>
+            <h2>Counter</h2>
             <div>
-                <h2>Counter</h2>
                 <button onClick={decrement}>-</button>
                 <p>{count}</p>
                 <button onClick={increment}>+</button>
-                <hr />
             </div>
+            <hr style={{ margin: 10 }} />
         </>
     );
 };

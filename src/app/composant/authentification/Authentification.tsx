@@ -45,7 +45,7 @@ const Authentification: React.FC = () => {
                     <button>Login</button>
                 </form>
             </div>
-            <hr style={{ margin: 10 }} />
+            <hr />
         </>
     );
 };

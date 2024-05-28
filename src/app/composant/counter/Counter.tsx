@@ -22,7 +22,7 @@ const Counter: React.FC = () => {
                 <p>{count}</p>
                 <button onClick={increment}>+</button>
             </div>
-            <hr style={{ margin: 10 }} />
+            <hr />
         </>
     );
 };

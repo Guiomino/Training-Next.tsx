@@ -31,3 +31,8 @@ hr {
   width: 100%;
   margin: 10px 0;
 }
+
+button {
+  padding: 0 10px;
+  cursor: pointer;
+}

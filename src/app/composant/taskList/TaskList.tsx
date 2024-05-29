@@ -40,6 +40,9 @@ const TaskList = () => {
         <>
             <h2>TaskList</h2>
             <div>
+                <p><strong>Without</strong> saved data in local storage</p>
+            </div>
+            <div>
                 <form onSubmit={handleSubmit}>
                     <input
                         type="text"

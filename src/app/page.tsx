@@ -1,14 +1,14 @@
 
 import Authentification from "./composant/authentification/Authentification"
 import TaskList from "./composant/taskList/TaskList";
-// import UserListAPI from "./composant/userListAPI/UserListAPI";
+import TodoApp from "./composant/todoApp/TodoApp";
 
 export default function Home() {
   return (
     <main>
       <Authentification />
       <TaskList />
-      {/* <UserListAPI /> */}
+      < TodoApp />
     </main>
   );
 }

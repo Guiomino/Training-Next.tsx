@@ -12,17 +12,30 @@ interface Todo {
 };
 
 const TodoApp: React.FC = () => {
-    const [todos, setTodos] = useState<Todo[]>(() => {
-        const savedTodos = JSON.parse(localStorage.getItem("todos") || "[]")
-        return savedTodos
-    });
+
+    const [todos, setTodos] = useState<Todo[]>([]);
+    const [isHydrated, setIsHydrated] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        localStorage.setItem("todos", JSON.stringify(todos))
-    }, [todos]);
+        const savedTodos = JSON.parse(localStorage.getItem("todos") || "[]")
+        setTodos(savedTodos)
+        setIsHydrated(true)
 
+        const timer = setTimeout(() => {
+            setIsLoading(false);
+        }, 1000);
 
-    const addTodo = ((text: string,) => {
+        return () => clearTimeout(timer);
+    }, []);
+
+    useEffect(() => {
+        if (isHydrated) {
+            localStorage.setItem("todos", JSON.stringify(todos))
+        }
+    }, [todos, isHydrated]);
+
+    const addTodo = ((text: string) => {
         const newTodo = { id: uuidv4(), text, completed: false }
         setTodos([...todos, newTodo])
     });
@@ -38,7 +51,7 @@ const TodoApp: React.FC = () => {
     return (
         <>
             <div>
-                <h2>To do App</h2>
+                <h2>TodoApp</h2>
             </div>
             <div>
                 <p><strong style={{ color: "green" }}>With</strong> saved data in local storage</p>
@@ -47,13 +60,23 @@ const TodoApp: React.FC = () => {
                 <TodoForm addTodo={addTodo} />
             </div>
             <div>
-                <TodoList todos={todos} toggleTodo={toggleTodo} deleteTodo={deleteTodo} />
+                {isLoading ?
+                    <p style={loadingStyle}>... Loading</p> :
+                    (isHydrated ?
+                        (todos.length === 0 ?
+                            <p>There is no todo available</p> :
+                            <TodoList todos={todos} toggleTodo={toggleTodo} deleteTodo={deleteTodo} />
+                        )
+                        : <p style={loadingStyle}>... Loading</p>
+                    )
+                }
             </div>
             <hr />
         </>
     )
 };
 
+const loadingStyle = { color: "blue", fontWeight: "bold" }
 
 // PROPS TodoForm
 interface TodoFormProps {
@@ -61,15 +84,16 @@ interface TodoFormProps {
 };
 
 const TodoForm: React.FC<TodoFormProps> = (({ addTodo }) => {
+
     const [text, setText] = useState("");
 
     const handleSubmit = ((event: React.FormEvent) => {
         event.preventDefault();
         if (text.trim() !== "") {
             addTodo(text)
-            setText("")
         }
-    });
+        setText("")
+    })
 
     return (
         <>
@@ -90,14 +114,13 @@ interface TodoListProps {
 };
 
 const TodoList: React.FC<TodoListProps> = (({ todos, toggleTodo, deleteTodo }) => {
-
     return (
         <>
             <ul>
                 {todos.map((todo) => (
                     <li key={todo.id}>
                         <input type="checkbox" checked={todo.completed} onChange={() => toggleTodo(todo.id)} />
-                        <span style={{ color: todo.completed ? "green" : "grey" }}> | {todo.text} ➡️ </span>
+                        <span style={{ color: todo.completed ? "#009900" : "grey" }}> | {todo.text} {todo.completed ? "🟢" : "⚪"} </span>
                         <button onClick={() => deleteTodo(todo.id)}>Delete</button>
                     </li>
                 ))}
@@ -106,15 +129,23 @@ const TodoList: React.FC<TodoListProps> = (({ todos, toggleTodo, deleteTodo }) =
     )
 });
 
-export default TodoApp;
+
+export default TodoApp
 
 
-// Interface définissant la structure d'une tâche Todo
+
+// Interface définissant la structure d'une tâche Todo : uuid, text, completed
 
 // Composant principal de l'application Todo
 
-// État local pour stocker la liste des tâches Todo, initialisé avec les données du localStorage
-// useEffect pour sauvegarder les tâches dans le localStorage à chaque modification de la liste des tâches
+// État local pour stocker la liste des tâches Todo -> tableau[]
+// État local pour gérer l'hydratation entre le SSR et le côté client -> boolean. Est il chargé ?
+// État local pour gérer le loading  de todo sur 1 sec.
+
+// useEffect pour récupérer les données dans le localStorage lors du chargement initial du composant
+//   -> Ajouter un timer pour le loading et l'annuler quand le composant est démonté
+// useEffect pour sauvegarder les données dans le localStorage
+//   -> "à chaque modification de la liste des tâches + en s'assurant que l'hydration est bien effective"
 
 // Fonction pour ajouter une nouvelle tâche à la liste avec generation uuidv4
 // Fonction pour basculer l'état de complétion d'une tâche (complétée ou non)
